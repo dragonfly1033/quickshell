@@ -1,0 +1,7 @@
+module singletons
+singleton Icons 1.0 Icons.qml
+singleton Scheme 1.0 Scheme.qml
+singleton DateProc 1.0 DateProc.qml
+singleton UpdateCountProc 1.0 UpdateCountProc.qml
+singleton TempProc 1.0 TempProc.qml
+singleton BatteryProc 1.0 BatteryProc.qml
