@@ -59,7 +59,6 @@ Item {
                 let confirm = false
                 item.confirmed.connect(() => {
                     confirm = true
-                    root.modal.splashClose(btn.iconColor)
                 })
                 item.cancelled.connect(root.modal.close)
                 root.modal.closed.connect(() => {
@@ -111,7 +110,7 @@ Item {
         PowerButton {
             glyph: Icons.lock.glyph
             action: "Lock"
-            command: ["swaylock"]
+            command: ["notify-send", "hyyyyyyyyyyyyyy"]
             iconColor: Scheme.blue
             confirm: true
         }

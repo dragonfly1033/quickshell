@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell.Io
 import "../singletons"
@@ -235,49 +236,71 @@ Item {
         side: "bottom"
         mergeSide: "middle"
         anchor: root.spawnZones.bottomMiddle
-        open: root.searchIpcOpen || root.spawnZones.bottomMiddle.hovered || searchPopout.hovered
+        open: root.spawnZones.bottomMiddle.hovered || searchPopout.hovered
         color: Scheme.bgColor
         animDuration: 400
-
-        onDeactivated: root.searchIpcOpen = false
 
         PowerMenu {
             modal: root.modal
         }
     }
 
-    property bool searchIpcOpen: false
+    Component {
+        id: searchModalContent
+        Item {
+            id: content
+            anchors.fill: parent
 
-    TapHandler {
-        enabled: root.searchIpcOpen
-        onTapped: root.searchIpcOpen = false
-    }
+            readonly property bool contentHovered: searchPopoutModal.hovered
 
-    Shortcut {
-        sequence: "Escape"
-        enabled: root.searchIpcOpen
-        onActivated: root.searchIpcOpen = false
-    }
+            // progress drives backdrop opacity — track the popout's open animation
+            property real progress: searchPopoutModal.contentSize > 0
+                ? searchPopoutModal.height / searchPopoutModal.contentSize
+                : 0
 
-    Binding {
-        target: root.window.WlrLayershell
-        property: "keyboardFocus"
-        value: root.searchIpcOpen ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
-        when: !root.modal.open
-    }
+            signal closingDone
 
-    Connections {
-        target: root.window
-        enabled: root.searchIpcOpen
-        function onActiveFocusChanged() {
-            if (!root.window.activeFocus) root.searchIpcOpen = false
+            function close() {
+                searchPopoutModal.open = false
+                closeTimer.start()
+            }
+
+            Timer {
+                id: closeTimer
+                interval: searchPopoutModal.animDuration
+                onTriggered: content.closingDone()
+            }
+
+            // Virtual anchor mirroring bottomMiddle's position in the modal's coordinate space
+            Item {
+                id: virtualAnchor
+                x: root.spawnZones.bottomMiddle.x
+                y: root.spawnZones.bottomMiddle.y
+                width: root.spawnZones.bottomMiddle.width
+                height: root.spawnZones.bottomMiddle.height
+            }
+
+            Popout {
+                id: searchPopoutModal
+                side: "bottom"
+                mergeSide: "middle"
+                anchor: virtualAnchor
+                open: true
+                color: Scheme.bgColor
+                animDuration: 400
+
+                PowerMenu { modal: root.modal }
+            }
         }
     }
 
     IpcHandler {
         target: "search." + root.screen.name
-        function toggle(): void { root.searchIpcOpen = !root.searchIpcOpen; }
-        function show(): void   { root.searchIpcOpen = true; }
-        function hide(): void   { root.searchIpcOpen = false; }
+        function show(): void   { root.modal.show(searchModalContent, {}) }
+        function hide(): void   { root.modal.close() }
+        function toggle(): void {
+            if (root.modal.open) root.modal.close()
+            else root.modal.show(searchModalContent, {})
+        }
     }
 }
