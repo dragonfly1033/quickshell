@@ -32,23 +32,25 @@ Scope {
         visible: root.visible
     }
 
-    // PanelWindow {
-    //     screen: root.screen
-    //     anchors.top: true
-    //     exclusiveZone: Scheme.borderThickness * root.progress
-    //     implicitWidth: 1; implicitHeight: 1
-    //     color: "transparent"
-    //     WlrLayershell.exclusionMode: ExclusionMode.Ignore
-    //     mask: Region {}
-    // }
+    PanelWindow {
+        screen: root.screen
+        anchors.top: true
+        exclusiveZone: Scheme.borderThickness * root.progress
+        implicitWidth: 1; implicitHeight: 1
+        color: "transparent"
+        WlrLayershell.exclusionMode: ExclusionMode.Ignore
+        mask: Region {}
+        visible: root.visible
+    }
 
-    // PanelWindow {
-    //     screen: root.screen
-    //     anchors.bottom: true
-    //     exclusiveZone: Scheme.borderThickness * root.progress
-    //     implicitWidth: 1; implicitHeight: 1
-    //     color: "transparent"
-    //     WlrLayershell.exclusionMode: ExclusionMode.Ignore
-    //     mask: Region {}
-    // }
+    PanelWindow {
+        screen: root.screen
+        anchors.bottom: true
+        exclusiveZone: Scheme.borderThickness * root.progress
+        implicitWidth: 1; implicitHeight: 1
+        color: "transparent"
+        WlrLayershell.exclusionMode: ExclusionMode.Ignore
+        mask: Region {}
+        visible: root.visible
+    }
 }

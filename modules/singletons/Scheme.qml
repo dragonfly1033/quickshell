@@ -5,7 +5,7 @@ import QtQuick
 QtObject {
     readonly property int borderThickness: 8
     readonly property int barWidth: 52
-    readonly property int borderRadius: 36
+    readonly property int borderRadius: 24
     readonly property string font: "FiraCode Nerd Font"
     readonly property string iconFont: "Symbols Nerd font"
     readonly property string tempSensor: "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon5/temp1_input"

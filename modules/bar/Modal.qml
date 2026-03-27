@@ -38,7 +38,7 @@ Scope {
     PanelWindow {
         id: win
         screen: root.screen
-        visible: root._backdropProgress > 0.001
+        visible: root.open
 
         anchors.top: true
         anchors.bottom: true
@@ -48,12 +48,12 @@ Scope {
         color: "transparent"
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.exclusionMode: ExclusionMode.Ignore
-        WlrLayershell.keyboardFocus: root._backdropProgress > 0.001 ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+        WlrLayershell.keyboardFocus: root.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
         surfaceFormat.opaque: false
 
         Shortcut {
             sequence: "Escape"
-            enabled: root._backdropProgress > 0.001
+            enabled: root.open
             onActivated: root.close()
         }
 
