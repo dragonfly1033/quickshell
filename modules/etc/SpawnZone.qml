@@ -9,6 +9,7 @@ Rectangle {
     property bool show: false
 
     readonly property alias hovered: hover.hovered
+    signal tapped
 
     opacity: show ? 1 : 0
     color: "#ff0000"
@@ -61,4 +62,5 @@ Rectangle {
     ) ? Scheme.barWidth : 0
 
     HoverHandler { id: hover }
+    TapHandler { onTapped: root.tapped() }
 }

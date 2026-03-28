@@ -1,19 +1,21 @@
 import QtQuick
 import QtQuick.Shapes
+import Quickshell.Io
 import "../singletons"
+import "../etc"
 
 Item {
     id: root
 
     required property string side
-    required property Item anchor
+    required property SpawnZone anchor
     property string mergeSide: "middle"
     property bool clipContents: false
 
     property int animDuration: 700
     property color color: Scheme.bgColor
 
-    property bool open: false
+    property bool open: (anchor.hovered || hovered) && !modalPopout
 
     function activate():   void { open = true  }
     function deactivate(): void { open = false }
@@ -33,6 +35,7 @@ Item {
     property Component contentFactory: null
 
     // Modal support
+    property string name: ""
     property var modal: null
     property Item modalAnchor: null
     property Popout modalPopout: null
@@ -41,6 +44,32 @@ Item {
     property bool inModal: false
     Component.onCompleted: { if (animateModalOpen && inModal) open = true }
 
+
+    // Tap the anchor zone → open on modal (only when modal is configured)
+    Connections {
+        target: root.anchor
+        enabled: root.modal ? true : false
+        function onTapped() { 
+            if (root.modalPopout) root.modalPopout.close()
+            else root.showOnModal()
+        }
+    }
+
+    // IPC control (only active when name is set and modal is configured)
+    IpcHandler {
+        target: root.name
+        enabled: root.modal ? true : false
+        function show(): void   { 
+            root.showOnModal() 
+        }
+        function hide(): void   { if (root.modalPopout) root.modalPopout.close() }
+        function toggle(): void {
+            if (root.modalPopout) root.modalPopout.close()
+            else {
+                root.showOnModal()
+            }
+        }
+    }
 
     // Modal child contract
     property bool requestFocus: false
@@ -70,7 +99,7 @@ Item {
     }
 
     // Stay visible while animating closed (width > 0 while shrinking)
-    visible: open || width > 0
+    visible: !modalPopout && (open || width > 0)
 
     x: {
         anchor.x; anchor.y; anchor.width; anchor.height

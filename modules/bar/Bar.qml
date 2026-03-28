@@ -1,6 +1,5 @@
 pragma ComponentBehavior: Bound
 import QtQuick
-import Quickshell.Io
 import "../singletons"
 import "../etc"
 
@@ -233,30 +232,17 @@ Item {
 
     Popout {
         id: searchPopout
-        side: "bottom"; mergeSide: "middle"; clipContents: true
+        side: "bottom"
+        mergeSide: "middle"
         anchor: root.spawnZones.bottomMiddle
-        open: root.spawnZones.bottomMiddle.hovered || searchPopout.hovered
-        color: Scheme.bgColor; animDuration: 400
+        color: Scheme.bgColor
+        animDuration: 400
+        clipContents: true
+
+        name: "search." + root.screen.name
         modal: root.modal
         modalAnchor: root.modal.spawnZones.bottomMiddle
         animateModalOpen: false
         contentFactory: Component { PowerMenu { modal: root.modal } }
-    }
-
-    IpcHandler {
-        target: "search." + root.screen.name
-        function show(): void   { searchPopout.showOnModal() }
-        function hide(): void   { if (searchPopout.modalPopout) searchPopout.modalPopout.close() }
-        function toggle(): void {
-            if (searchPopout.modalPopout) searchPopout.modalPopout.close()
-            else searchPopout.showOnModal()
-        }
-    }
-
-    IpcHandler {
-        target: "test"
-        function wow(): void {
-            searchPopout.anchor = root.modal.spawnZones.bottomMiddle
-        }
     }
 }
