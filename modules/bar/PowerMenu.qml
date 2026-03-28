@@ -56,14 +56,10 @@ Item {
                 var item = root.modal.show(confirmDialog, {
                     action: btn.action,
                 })
-                let confirm = false
-                item.confirmed.connect(() => {
-                    confirm = true
-                })
-                item.cancelled.connect(root.modal.close)
-                root.modal.closed.connect(() => {
-                    if (confirm) { proc.running = true }
-                })
+                let confirmFlag = false
+                item.confirmed.connect(() => { confirmFlag = true })
+                item.cancelled.connect(item.close)
+                item.closingDone.connect(() => { if (confirmFlag) proc.running = true })
             } else {
                 proc.running = true
             }

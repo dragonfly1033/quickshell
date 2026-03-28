@@ -122,6 +122,7 @@ ShellRoot {
             Modal {
                 id: modal
                 screen: perScreen.screen
+                progress: perScreen.progress
             }
         }
     }

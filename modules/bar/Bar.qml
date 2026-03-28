@@ -231,66 +231,29 @@ Item {
         }
     }
 
-    Popout {
+    component SearchPopout: Popout {
+        id: self
+        side: "bottom"; mergeSide: "middle"
+        color: Scheme.bgColor; animDuration: 400
+        property bool requestFocus: false
+        signal closingDone
+        function close() { open = false; _closeTimer.restart() }
+        Timer { id: _closeTimer; interval: self.animDuration; onTriggered: self.closingDone() }
+        PowerMenu { modal: root.modal }
+    }
+
+    SearchPopout {
         id: searchPopout
-        side: "bottom"
-        mergeSide: "middle"
         anchor: root.spawnZones.bottomMiddle
         open: root.spawnZones.bottomMiddle.hovered || searchPopout.hovered
-        color: Scheme.bgColor
-        animDuration: 400
-
-        PowerMenu {
-            modal: root.modal
-        }
     }
 
     Component {
         id: searchModalContent
-        Item {
-            id: content
-            anchors.fill: parent
-
-            readonly property bool contentHovered: searchPopoutModal.hovered
-
-            // progress drives backdrop opacity — track the popout's open animation
-            property real progress: searchPopoutModal.contentSize > 0
-                ? searchPopoutModal.height / searchPopoutModal.contentSize
-                : 0
-
-            signal closingDone
-
-            function close() {
-                searchPopoutModal.open = false
-                closeTimer.start()
-            }
-
-            Timer {
-                id: closeTimer
-                interval: searchPopoutModal.animDuration
-                onTriggered: content.closingDone()
-            }
-
-            // Virtual anchor mirroring bottomMiddle's position in the modal's coordinate space
-            Item {
-                id: virtualAnchor
-                x: root.spawnZones.bottomMiddle.x
-                y: root.spawnZones.bottomMiddle.y
-                width: root.spawnZones.bottomMiddle.width
-                height: root.spawnZones.bottomMiddle.height
-            }
-
-            Popout {
-                id: searchPopoutModal
-                side: "bottom"
-                mergeSide: "middle"
-                anchor: virtualAnchor
-                open: true
-                color: Scheme.bgColor
-                animDuration: 400
-
-                PowerMenu { modal: root.modal }
-            }
+        SearchPopout {
+            anchor: root.modal.spawnZones.bottomMiddle
+            open: false
+            Component.onCompleted: open = true
         }
     }
 
@@ -301,6 +264,13 @@ Item {
         function toggle(): void {
             if (root.modal.open) root.modal.close()
             else root.modal.show(searchModalContent, {})
+        }
+    }
+
+    IpcHandler {
+        target: "test"
+        function wow(): void {
+            searchPopout.anchor = root.modal.spawnZones.bottomMiddle
         }
     }
 }

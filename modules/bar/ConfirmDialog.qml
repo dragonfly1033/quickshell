@@ -15,7 +15,7 @@ Item {
     property int rippleFadeDuration: 900
     property int rippleOutDuration: 900
 
-    readonly property bool contentHovered: hoverHandler.hovered
+    property bool requestFocus: true
 
     signal confirmed
     signal cancelled
@@ -42,8 +42,9 @@ Item {
     focus: true
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-            doConfirm()
-            event.accepted = true
+            doConfirm(); event.accepted = true
+        } else if (event.key === Qt.Key_Escape) {
+            root.close(); event.accepted = true
         }
     }
 
@@ -86,6 +87,15 @@ Item {
         duration: root.rippleFadeDuration
         easing.type: Easing.OutCubic
         onFinished: root.closingDone()
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        color: Qt.rgba(0, 0, 0, 0.55)
+        opacity: root.progress
+        TapHandler {
+            onTapped: if (!hoverHandler.hovered) root.close()
+        }
     }
 
     Rectangle {
