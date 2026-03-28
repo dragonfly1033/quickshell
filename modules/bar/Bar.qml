@@ -231,39 +231,25 @@ Item {
         }
     }
 
-    component SearchPopout: Popout {
-        id: self
-        side: "bottom"; mergeSide: "middle"
-        color: Scheme.bgColor; animDuration: 400
-        property bool requestFocus: false
-        signal closingDone
-        function close() { open = false; _closeTimer.restart() }
-        Timer { id: _closeTimer; interval: self.animDuration; onTriggered: self.closingDone() }
-        PowerMenu { modal: root.modal }
-    }
-
-    SearchPopout {
+    Popout {
         id: searchPopout
+        side: "bottom"; mergeSide: "middle"; clipContents: true
         anchor: root.spawnZones.bottomMiddle
         open: root.spawnZones.bottomMiddle.hovered || searchPopout.hovered
-    }
-
-    Component {
-        id: searchModalContent
-        SearchPopout {
-            anchor: root.modal.spawnZones.bottomMiddle
-            open: false
-            Component.onCompleted: open = true
-        }
+        color: Scheme.bgColor; animDuration: 400
+        modal: root.modal
+        modalAnchor: root.modal.spawnZones.bottomMiddle
+        animateModalOpen: false
+        contentFactory: Component { PowerMenu { modal: root.modal } }
     }
 
     IpcHandler {
         target: "search." + root.screen.name
-        function show(): void   { root.modal.show(searchModalContent, {}) }
-        function hide(): void   { root.modal.close() }
+        function show(): void   { searchPopout.showOnModal() }
+        function hide(): void   { if (searchPopout.modalPopout) searchPopout.modalPopout.close() }
         function toggle(): void {
-            if (root.modal.open) root.modal.close()
-            else root.modal.show(searchModalContent, {})
+            if (searchPopout.modalPopout) searchPopout.modalPopout.close()
+            else searchPopout.showOnModal()
         }
     }
 

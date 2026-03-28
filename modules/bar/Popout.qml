@@ -14,6 +14,7 @@ Item {
     property color color: Scheme.bgColor
 
     property bool open: false
+
     function activate():   void { open = true  }
     function deactivate(): void { open = false }
     function toggle():     void { open = !open }
@@ -27,6 +28,46 @@ Item {
 
     // Children declared inside Popout { ... } are reparented into the container
     default property alias content: container.data
+    // Alternative: set contentFactory to a Component — it will be loaded into the container.
+    // Use this when the popout also needs to be shown on the modal layer (showOnModal).
+    property Component contentFactory: null
+
+    // Modal support
+    property var modal: null
+    property Item modalAnchor: null
+    property Popout modalPopout: null
+    
+    property bool animateModalOpen: false
+    property bool inModal: false
+    Component.onCompleted: { if (animateModalOpen && inModal) open = true }
+
+
+    // Modal child contract
+    property bool requestFocus: false
+    signal closingDone
+    function close() { open = false; _closeTimer.restart() }
+    Timer { id: _closeTimer; interval: root.animDuration; onTriggered: root.closingDone() }
+
+    // Creates a copy of this popout in the modal layer using modalAnchor.
+    // Requires contentFactory and modal to be set.
+    function showOnModal() {
+        if (!modal) return
+        var comp = Qt.createComponent(Qt.resolvedUrl("Popout.qml"))
+        if (comp.status !== Component.Ready) return
+        var item = modal.show(comp, {
+            side: root.side,
+            mergeSide: root.mergeSide,
+            color: root.color,
+            animDuration: root.animDuration,
+            anchor: root.modalAnchor ?? root.anchor,
+            contentFactory: root.contentFactory,
+            inModal: true,
+            open: !root.animateModalOpen,
+            animateModalOpen: root.animateModalOpen,
+        })
+        item.closingDone.connect(function() { root.modalPopout = null })
+        modalPopout = item
+    }
 
     // Stay visible while animating closed (width > 0 while shrinking)
     visible: open || width > 0
@@ -243,6 +284,7 @@ Item {
 
         Item {
             id: container
+            Loader { sourceComponent: root.contentFactory }
             x: root.side === "left"   ? root.width - childrenRect.width - root.radialPadding
              : root.side === "right"  ? root.radialPadding
              : (root.side === "top" && root.mergeSide === "right") 
