@@ -85,7 +85,7 @@ Scope {
         color: "transparent"
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.exclusionMode: ExclusionMode.Ignore
-        WlrLayershell.keyboardFocus: root._focusedItem ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand
+        WlrLayershell.keyboardFocus: root._focusedItem ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
         surfaceFormat.opaque: false
 
         mask: root._focusedItem ? null : contentMask

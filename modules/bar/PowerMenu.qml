@@ -34,7 +34,7 @@ Item {
 
         width: root.size
         height: root.size
-        radius: Scheme.borderRadius
+        radius: Scheme.borderShrink(2)
         color: hovered ? Qt.lighter(Scheme.bgColor, 2.5) : Qt.lighter(Scheme.bgColor, 1.6)
 
         Behavior on color { ColorAnimation { duration: 150 } }
@@ -82,10 +82,11 @@ Item {
         }
     }
 
-    // Rectangle {
-    //     anchors.fill: parent
-    //     color: '#ff0000'
-    // }
+    Rectangle {
+        anchors.fill: parent
+        radius: Scheme.borderShrink(1)
+        color: '#ff0000'
+    }
 
     Row {
         id: row

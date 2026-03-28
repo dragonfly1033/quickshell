@@ -3,7 +3,7 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    readonly property int borderThickness: 8
+    readonly property int borderThickness: 24//8
     readonly property int barWidth: 52
     readonly property int borderRadius: 24
     readonly property string font: "FiraCode Nerd Font"
@@ -28,4 +28,8 @@ QtObject {
     readonly property color magenta: "#F5C2E7"
     readonly property color cyan: "#94E2D5"
     readonly property color white: "#BAC2DE"
+
+    function borderShrink(num) {
+        return borderRadius * (1 - (2 - Math.sqrt(2)) / 2) ** num
+    }
 }

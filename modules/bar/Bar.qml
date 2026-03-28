@@ -43,7 +43,13 @@ Item {
                     fgColor: Scheme.fgColor
                     font: Scheme.font
                 }
-              
+
+                HideModalButton {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    visible: root.modal.open
+                    modal: root.modal
+                }
+
                 ProgCirc {
                     id: updates
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -108,98 +114,110 @@ Item {
         
         
         // Popout {
+        //     progress: root.progress
         //     side: "left"
         //     mergeSide: "middle"
         //     anchor: root.spawnZones.leftMiddle
-        //     open: true//root.spawnZones.leftMiddle.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectH {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "left"
         //     mergeSide: "top"
         //     anchor: root.spawnZones.leftTop
-        //     open: true//root.spawnZones.leftTop.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectH {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "left"
         //     mergeSide: "bottom"
         //     anchor: root.spawnZones.leftBottom
-        //     open: true//root.spawnZones.leftBottom.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectH {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "right"
         //     mergeSide: "middle"
         //     anchor: root.spawnZones.rightMiddle
-        //     open: true//root.spawnZones.rightMiddle.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectH {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "right"
         //     mergeSide: "top"
         //     anchor: root.spawnZones.rightTop
-        //     open: true//root.spawnZones.rightTop.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectH {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "right"
         //     mergeSide: "bottom"
         //     anchor: root.spawnZones.rightBottom
-        //     open: true//root.spawnZones.rightBottom.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectH {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "top"
         //     mergeSide: "middle"
         //     anchor: root.spawnZones.topMiddle
-        //     open: true//root.spawnZones.topMiddle.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectH {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "top"
         //     mergeSide: "left"
         //     anchor: root.spawnZones.topLeft
-        //     open: true//root.spawnZones.topLeft.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectV {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "top"
         //     mergeSide: "right"
         //     anchor: root.spawnZones.topRight
-        //     open: true//root.spawnZones.topRight.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectV {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "bottom"
         //     mergeSide: "middle"
         //     anchor: root.spawnZones.bottomMiddle
-        //     open: true//root.spawnZones.bottomMiddle.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectH {}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "bottom"
         //     mergeSide: "left"
         //     anchor: root.spawnZones.bottomLeft
-        //     open: true//root.spawnZones.bottomLeft.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectV{}
         // }
         // Popout {
+        //     progress: root.progress
         //     side: "bottom"
         //     mergeSide: "right"
         //     anchor: root.spawnZones.bottomRight
-        //     open: true//root.spawnZones.bottomRight.hovered 
+        //     //open: true
         //     color: '#aaff0000'
         //     TestRectV {}
         // }
@@ -218,31 +236,32 @@ Item {
 
     Popout {
         id: powerPopout
+        progress: root.progress
         side: "right"
         mergeSide: "bottom"
         anchor: root.spawnZones.rightBottom
-        open: root.spawnZones.rightBottom.hovered || powerPopout.hovered
         color: Scheme.bgColor
         animDuration: 400
 
-        PowerMenu {
-            modal: root.modal
-        }
+        name: "power." + root.screen.name
+        modal: root.modal
+        modalAnchor: root.modal.spawnZones.rightBottom
+        contentFactory: Component { PowerMenu { modal: root.modal } }
     }
 
     Popout {
         id: searchPopout
+        progress: root.progress
         side: "bottom"
         mergeSide: "middle"
         anchor: root.spawnZones.bottomMiddle
         color: Scheme.bgColor
         animDuration: 400
-        clipContents: true
+        clipContents: false
 
         name: "search." + root.screen.name
         modal: root.modal
         modalAnchor: root.modal.spawnZones.bottomMiddle
-        animateModalOpen: false
         contentFactory: Component { PowerMenu { modal: root.modal } }
     }
 }

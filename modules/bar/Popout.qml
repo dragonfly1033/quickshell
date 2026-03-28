@@ -9,11 +9,13 @@ Item {
 
     required property string side
     required property SpawnZone anchor
+    required property real progress
     property string mergeSide: "middle"
     property bool clipContents: false
 
     property int animDuration: 700
     property color color: Scheme.bgColor
+
 
     property bool open: (anchor.hovered || hovered) && !modalPopout
 
@@ -51,7 +53,7 @@ Item {
         enabled: root.modal ? true : false
         function onTapped() { 
             if (root.modalPopout) root.modalPopout.close()
-            else root.showOnModal()
+            else root.showOnModal(false)
         }
     }
 
@@ -59,14 +61,12 @@ Item {
     IpcHandler {
         target: root.name
         enabled: root.modal ? true : false
-        function show(): void   { 
-            root.showOnModal() 
-        }
+        function show(): void   { root.showOnModal(true) }
         function hide(): void   { if (root.modalPopout) root.modalPopout.close() }
         function toggle(): void {
             if (root.modalPopout) root.modalPopout.close()
             else {
-                root.showOnModal()
+                root.showOnModal(true)
             }
         }
     }
@@ -79,11 +79,12 @@ Item {
 
     // Creates a copy of this popout in the modal layer using modalAnchor.
     // Requires contentFactory and modal to be set.
-    function showOnModal() {
+    function showOnModal(animateModalOpen) {
         if (!modal) return
         var comp = Qt.createComponent(Qt.resolvedUrl("Popout.qml"))
         if (comp.status !== Component.Ready) return
         var item = modal.show(comp, {
+            progress: root.progress,
             side: root.side,
             mergeSide: root.mergeSide,
             color: root.color,
@@ -91,9 +92,10 @@ Item {
             anchor: root.modalAnchor ?? root.anchor,
             contentFactory: root.contentFactory,
             inModal: true,
-            open: !root.animateModalOpen,
-            animateModalOpen: root.animateModalOpen,
+            open: !animateModalOpen,
+            animateModalOpen: animateModalOpen,
         })
+        item.progress = Qt.binding(function() { return root.progress })
         item.closingDone.connect(function() { root.modalPopout = null })
         modalPopout = item
     }
@@ -101,20 +103,25 @@ Item {
     // Stay visible while animating closed (width > 0 while shrinking)
     visible: !modalPopout && (open || width > 0)
 
+    property real animatedBarWidth: Scheme.barWidth * progress
+    property real animatedBorderThickness: Scheme.borderThickness * progress
+
+    function lerp(a, b, t) { return a + t * (b - a) }
+
     x: {
-        anchor.x; anchor.y; anchor.width; anchor.height
-        if (side === "left")  return anchor.mapToItem(parent, anchor.width, 0).x
-        if (side === "right") return anchor.mapToItem(parent, 0, 0).x - width
-        if (mergeSide === "right") return Window.window.width - Scheme.borderThickness - width
-        if (mergeSide === "left")   return Scheme.barWidth
+        anchor.x; anchor.y; anchor.width; anchor.height; animatedBarWidth; animatedBorderThickness; openProgress
+        if (side === "left")       return lerp(-contentSize,          anchor.mapToItem(parent, anchor.width, 0).x,                  openProgress)
+        if (side === "right")      return lerp(Window.window.width,   anchor.mapToItem(parent, 0, 0).x - contentSize,               openProgress)
+        if (mergeSide === "right") return lerp(Window.window.width,   Window.window.width - animatedBorderThickness - crossSize,    openProgress)
+        if (mergeSide === "left")  return lerp(-crossSize,            animatedBarWidth,                                             openProgress)
         return anchor.mapToItem(parent, anchor.width / 2, 0).x - width / 2
     }
     y: {
-        anchor.x; anchor.y; anchor.width; anchor.height
-        if (side === "top")    return anchor.y+anchor.height
-        if (side === "bottom") return anchor.y-height
-        if (mergeSide === "bottom") return Window.window.height - Scheme.borderThickness - height
-        if (mergeSide === "top")   return Scheme.borderThickness
+        anchor.x; anchor.y; anchor.width; anchor.height; animatedBarWidth; animatedBorderThickness; openProgress
+        if (side === "top")         return lerp(-contentSize,          anchor.y + anchor.height,                                    openProgress)
+        if (side === "bottom")      return lerp(Window.window.height,  anchor.y - contentSize,                                      openProgress)
+        if (mergeSide === "bottom") return lerp(Window.window.height,  Window.window.height - animatedBorderThickness - crossSize,  openProgress)
+        if (mergeSide === "top")    return lerp(-crossSize,            animatedBorderThickness,                                     openProgress)
         return anchor.mapToItem(parent, 0, anchor.height / 2).y - height / 2
     }
 
@@ -137,48 +144,41 @@ Item {
 
     readonly property real radialPadding: radius * (2 - Math.sqrt(2)) / 2
 
-    // readonly property real mergeExtra: mergeSide === "left" ? 
-
     readonly property real contentSize: horizontal
-        ? (side === "left" 
+        ? (side === "left"
             ? container.childrenRect.width  + radialPadding //+ radius
-            : container.childrenRect.width  + radialPadding*2 - Scheme.borderThickness //+ radius
+            : container.childrenRect.width  + radialPadding*2 - animatedBorderThickness //+ radius
         )
-        : container.childrenRect.height + radialPadding*2 - Scheme.borderThickness //+ radius
+        : container.childrenRect.height + radialPadding*2 - animatedBorderThickness //+ radius
     readonly property real crossSize: horizontal
-        ? (mergeSide !== "middle" 
+        ? (mergeSide !== "middle"
             ? (mergeSide === "left"
                 ? container.childrenRect.height + radialPadding
-                : container.childrenRect.height + radialPadding*2 - Scheme.borderThickness
+                : container.childrenRect.height + radialPadding*2 - animatedBorderThickness
             )
             : container.childrenRect.height + radialPadding*2
         )
-        : (mergeSide !== "middle" 
+        : (mergeSide !== "middle"
             ? (mergeSide === "left"
                 ? container.childrenRect.width + radialPadding
-                : container.childrenRect.width + radialPadding*2 - Scheme.borderThickness
+                : container.childrenRect.width + radialPadding*2 - animatedBorderThickness
             )
             : container.childrenRect.width + radialPadding*2
         )
 
-    readonly property real animatedContentSize: open ? contentSize : startContentSize
-    readonly property real animatedCrossSize: open ? crossSize : startCrossSize
+    property bool animateCross: false
 
-    width:  horizontal ? animatedContentSize : animatedCrossSize
-    height: horizontal ? animatedCrossSize : animatedContentSize
+    property real openProgress: open ? 1.0 : 0.0
+    Behavior on openProgress {
+        NumberAnimation { duration: root.animDuration; easing.type: Easing.InOutCubic }
+    }
 
-    Behavior on width  {
-        NumberAnimation {
-            duration: root.animDuration
-            easing.type: Easing.InOutCubic
-        }
-    }
-    Behavior on height {
-        NumberAnimation {
-            duration: root.animDuration
-            easing.type: Easing.InOutCubic
-        }
-    }
+    readonly property real animatedCrossSize: animateCross
+        ? lerp(startCrossSize, crossSize, openProgress)
+        : crossSize
+
+    width:  horizontal ? openProgress * contentSize : animatedCrossSize
+    height: horizontal ? animatedCrossSize           : openProgress * contentSize
 
     Shape {
         anchors.fill: parent
