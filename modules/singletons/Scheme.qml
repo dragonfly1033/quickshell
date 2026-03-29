@@ -15,8 +15,8 @@ QtObject {
     
     readonly property color accent: "#cba6f7"
 
-    readonly property color bgColor: "#006644"
-    // readonly property color bgColor: Qt.darker("#1e1e2e", 1.1)
+    // readonly property color bgColor: "#006644"
+    readonly property color bgColor: Qt.darker("#1e1e2e", 1.1)
     readonly property color fgColor: '#cdd6f4'
     readonly property color red: '#f38ba8'
     readonly property color orange: '#d5ada5'

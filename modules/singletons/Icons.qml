@@ -21,7 +21,7 @@ QtObject {
     }
 
     readonly property Icon updates: Icon {
-        glyph: "󰦗"
+        glyph: "󰶡"//"󰦗"
         xOff: 0
         yOff: -1
         scale: 1
@@ -72,6 +72,14 @@ QtObject {
     }
     readonly property Icon logout: Icon {
         glyph: "󰍃"
+        xOff: 0
+        yOff: 0
+        scale: 1
+        rotation: 0
+    }
+
+    readonly property Icon arch: Icon {
+        glyph: "󰣇"
         xOff: 0
         yOff: 0
         scale: 1

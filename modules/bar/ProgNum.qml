@@ -120,9 +120,9 @@ Item {
             property real fillTop: bar.height * (1 - fill.animValue)
             // property bool flipped: fillTop < (height + gap + 1)
             property bool flipped: fill.animValue > 0.5
-            property int gap: 0
+            property int gap: 5
             
-            y: flipped ? fillTop + gap : fillTop - height - gap
+            y: flipped ? fillTop + gap : fillTop - height// - gap
             color: flipped ? root.bgColor : root.fgColor
             
             text: root.label

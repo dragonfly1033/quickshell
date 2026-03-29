@@ -82,11 +82,11 @@ Item {
         }
     }
 
-    Rectangle {
-        anchors.fill: parent
-        radius: Scheme.borderShrink(1)
-        color: '#ff0000'
-    }
+    // Rectangle {
+    //     anchors.fill: parent
+    //     radius: Scheme.borderShrink(1)
+    //     color: '#ff0000'
+    // }
 
     Row {
         id: row

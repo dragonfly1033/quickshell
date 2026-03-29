@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import "../singletons"
 import "../etc"
+import "../types"
 
 Item {
     id: root
@@ -29,6 +30,19 @@ Item {
         Item {
             anchors.fill: parent
 
+            Column {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                spacing: 10
+                topPadding: spacing
+
+                Logo {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    iconRatio: 1
+                    size: Scheme.barWidth * 0.55
+                }
+            }
+
             // Bottom group
             Column {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -37,31 +51,21 @@ Item {
                 bottomPadding: spacing
 
                 DateTime {
+                    id: time
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: root.width
                     bgColor: Scheme.bgColor
                     fgColor: Scheme.fgColor
                     font: Scheme.font
+
+                    readonly property alias hovered: timeHover.hovered
+                    HoverHandler {id: timeHover}
                 }
 
                 HideModalButton {
                     anchors.horizontalCenter: parent.horizontalCenter
                     visible: root.modal.open
                     modal: root.modal
-                }
-
-                ProgCirc {
-                    id: updates
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: root.width
-                    progressColor: Scheme.colorful ? UpdateCountProc.progressColor : Scheme.accent
-                    icon: UpdateCountProc.icon ?? Icons.unknown
-                    iconRatio: 0.65
-                    thickness: 2
-                    bgColor: Scheme.bgColor
-                    fgColor: Scheme.fgColor
-                    size: Scheme.barWidth * 0.6
-                    value: UpdateCountProc.ratio
                 }
 
                 Row {
@@ -85,24 +89,39 @@ Item {
                     }
 
                     ProgNum {
-                        progressColor: Scheme.colorful ? BatteryProc.progressColor : Scheme.accent
-                        icon: BatteryProc.icon ?? Icons.unknown
+                        progressColor: Scheme.colorful ? UpdateCountProc.progressColor : Scheme.accent
+                        icon: UpdateCountProc.icon ?? Icons.unknown
                         iconRatio: 0.8
                         bgColor: Scheme.bgColor
                         fgColor: Scheme.fgColor
                         barWidth: Scheme.barWidth * 0.245
                         barHeight: barWidth * 2.5 
                         fontSizeRatio: 0.65
-                        label: BatteryProc.level
-                        value: BatteryProc.ratio
+                        label: UpdateCountProc.count
+                        value: UpdateCountProc.ratio
                     }
 
-                    readonly property alias hovered: hover.hovered 
+                    readonly property alias hovered: statusHover.hovered 
                     HoverHandler {
-                        id: hover
+                        id: statusHover
                     }
                 }
 
+                ProgNum {
+                    id: battery
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    progressColor: Scheme.colorful ? BatteryProc.progressColor : Scheme.accent
+                    icon: BatteryProc.icon ?? Icons.unknown
+                    iconRatio: 0.4
+                    bgColor: Scheme.bgColor
+                    fgColor: Scheme.fgColor
+                    barWidth: Scheme.barWidth * 0.55
+                    barHeight: barWidth * 1.5
+                    radius: 6
+                    fontSizeRatio: 0.4
+                    label: BatteryProc.level
+                    value: BatteryProc.ratio
+                }
             }
         }
 
@@ -233,6 +252,34 @@ Item {
         //     height: 500
         // }
     }
+
+    // Popout {
+    //     id: datePopout
+    //     progress: root.progress
+    //     side: "left"
+    //     anchor: time
+    //     color: Scheme.bgColor
+    //     animDuration: 400
+
+    //     name: "date." + root.screen.name
+    //     modal: root.modal
+    //     modalAnchor: time // but in modal????
+    //     contentFactory: Component {
+    //         Text {
+    //             text: {
+    //                 return DateProc.hour + ":" + 
+    //                 DateProc.min + " " + 
+    //                 DateProc.day + " " + 
+    //                 DateProc.date + " " + 
+    //                 DateProc.month
+    //             }
+    //             color: Scheme.fgColor
+    //             font.pixelSize: 18
+    //             font.family: Scheme.font
+    //             transformOrigin: Item.Center
+    //         }
+    //     }
+    // }
 
     Popout {
         id: powerPopout

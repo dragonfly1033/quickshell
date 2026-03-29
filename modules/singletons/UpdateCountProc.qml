@@ -8,6 +8,7 @@ import "../singletons"
 
 Singleton {
     id: root
+    property string count
     property real ratio
     property Icon icon
     property color progressColor
@@ -26,7 +27,10 @@ Singleton {
                 } else {
                     root.icon = Icons.updates
                 }
-                root.ratio = Number(this.text.replace("!", ""))/root.updateThreshold
+                let countStr = this.text.replace("!", "")
+                let countNum = Number(countStr)
+                root.count = countNum < 100 ? countStr : "!!" 
+                root.ratio = countNum/root.updateThreshold
                 if (root.ratio < 0.5) {
                     root.progressColor = Scheme.green
                 } else if (root.ratio < 0.8) {

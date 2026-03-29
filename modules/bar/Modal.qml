@@ -104,12 +104,6 @@ Scope {
             }
         }
 
-        Shortcut {
-            sequence: "Escape"
-            enabled: root.open && !root._focusedItem
-            onActivated: root.close()
-        }
-
         Item {
             id: contentLayer
             anchors.fill: parent

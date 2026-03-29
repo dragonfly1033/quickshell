@@ -12,7 +12,8 @@ Item {
     property real value: 0
     property int thickness: 3
     property int animationTime: 1000
-    property Icon icon 
+    property Icon icon: null
+    property string text: ""
     width: size
     height: size
 
@@ -62,12 +63,12 @@ Item {
 
     Text {
         anchors.centerIn: parent
-        anchors.horizontalCenterOffset: root.icon.xOff
-        anchors.verticalCenterOffset: root.icon.yOff
-        text: root.icon.glyph
+        anchors.horizontalCenterOffset: root.icon ? root.icon.xOff : 0
+        anchors.verticalCenterOffset: root.icon ? root.icon.yOff : 0
+        text: root.icon ? root.icon.glyph : root.text
         color: root.fgColor
-        font.family: Scheme.iconFont
-        font.pixelSize: root.size * root.iconRatio * root.icon.scale
-        rotation: root.icon.rotation
+        font.family: root.icon ? Scheme.iconFont : Scheme.font
+        font.pixelSize: root.size * root.iconRatio * (root.icon ? root.icon.scale : 1.0)
+        rotation: root.icon ? root.icon.rotation : 0
     }
 }
