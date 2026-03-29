@@ -107,14 +107,14 @@ Item {
         PowerButton {
             glyph: Icons.lock.glyph
             action: "Lock"
-            command: ["notify-send", "hyyyyyyyyyyyyyy"]
+            command: ["swaylock"]
             iconColor: Scheme.blue
             confirm: true
         }
         PowerButton {
             glyph: Icons.reboot.glyph
             action: "Reboot"
-            command: ["reboot"]
+            command: ["notify-send", "reboot"]
             iconColor: Scheme.orange
             confirm: true
         }

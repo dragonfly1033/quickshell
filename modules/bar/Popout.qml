@@ -2,16 +2,19 @@ import QtQuick
 import QtQuick.Shapes
 import Quickshell.Io
 import "../singletons"
-import "../etc"
 
 Item {
     id: root
 
     required property string side
-    required property SpawnZone anchor
+    required property var anchor
     required property real progress
     property string mergeSide: "middle"
     property bool clipContents: false
+    // When true, x stays fixed at the anchor's edge and only width animates.
+    // Use for anchors that are inside the bar (not at the screen edge) so the
+    // popout doesn't slide through the bar content during open/close.
+    property bool growInPlace: false
 
     property int animDuration: 700
     property color color: Scheme.bgColor
@@ -79,24 +82,39 @@ Item {
 
     // Creates a copy of this popout in the modal layer using modalAnchor.
     // Requires contentFactory and modal to be set.
+    // A VirtualAnchor is created in modal.contentLayer to mirror the anchor's geometry —
+    // this handles cross-window anchors (bar widgets) and same-window anchors alike,
+    // since both windows are full-screen PanelWindows at (0,0).
     function showOnModal(animateModalOpen) {
         if (!modal) return
         var comp = Qt.createComponent(Qt.resolvedUrl("Popout.qml"))
         if (comp.status !== Component.Ready) return
+
+        var effectiveAnchor = root.modalAnchor ?? root.anchor
+        var vaComp = Qt.createComponent(Qt.resolvedUrl("../etc/VirtualAnchor.qml"))
+        var virtualAnchor = vaComp.status === Component.Ready
+            ? vaComp.createObject(modal.contentLayer, { source: effectiveAnchor, epoch: Qt.binding(function() { return root.progress }) })
+            : effectiveAnchor
+
         var item = modal.show(comp, {
             progress: root.progress,
             side: root.side,
             mergeSide: root.mergeSide,
             color: root.color,
             animDuration: root.animDuration,
-            anchor: root.modalAnchor ?? root.anchor,
+            anchor: virtualAnchor,
             contentFactory: root.contentFactory,
+            growInPlace: root.growInPlace,
+            clipContents: root.clipContents,
             inModal: true,
             open: !animateModalOpen,
             animateModalOpen: animateModalOpen,
         })
         item.progress = Qt.binding(function() { return root.progress })
-        item.closingDone.connect(function() { root.modalPopout = null })
+        item.closingDone.connect(function() {
+            root.modalPopout = null
+            if (virtualAnchor !== effectiveAnchor) virtualAnchor.destroy()
+        })
         modalPopout = item
     }
 
@@ -110,8 +128,12 @@ Item {
 
     x: {
         anchor.x; anchor.y; anchor.width; anchor.height; animatedBarWidth; animatedBorderThickness; openProgress
-        if (side === "left")       return lerp(-contentSize,          anchor.mapToItem(parent, anchor.width, 0).x,                  openProgress)
-        if (side === "right")      return lerp(Window.window.width,   anchor.mapToItem(parent, 0, 0).x - contentSize,               openProgress)
+        if (side === "left")       return growInPlace
+                                       ? anchor.mapToItem(parent, anchor.width, 0).x
+                                       : lerp(-contentSize,          anchor.mapToItem(parent, anchor.width, 0).x,                  openProgress)
+        if (side === "right")      return growInPlace
+                                       ? anchor.mapToItem(parent, 0, 0).x - contentSize
+                                       : lerp(Window.window.width,   anchor.mapToItem(parent, 0, 0).x - contentSize,               openProgress)
         if (mergeSide === "right") return lerp(Window.window.width,   Window.window.width - animatedBorderThickness - crossSize,    openProgress)
         if (mergeSide === "left")  return lerp(-crossSize,            animatedBarWidth,                                             openProgress)
         return anchor.mapToItem(parent, anchor.width / 2, 0).x - width / 2

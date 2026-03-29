@@ -13,7 +13,7 @@ Item {
     required property SpawnZones spawnZones
     required property var modal
 
-    property var popouts: [powerPopout,searchPopout]
+    property var popouts: [datePopout,powerPopout,searchPopout]
 
     anchors.fill: parent
 
@@ -50,22 +50,24 @@ Item {
                 spacing: 10
                 bottomPadding: spacing
 
-                DateTime {
-                    id: time
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: root.width
-                    bgColor: Scheme.bgColor
-                    fgColor: Scheme.fgColor
-                    font: Scheme.font
-
-                    readonly property alias hovered: timeHover.hovered
-                    HoverHandler {id: timeHover}
-                }
-
                 HideModalButton {
                     anchors.horizontalCenter: parent.horizontalCenter
                     visible: root.modal.open
                     modal: root.modal
+                }
+
+                DateTime {
+                    id: time
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: Scheme.barWidth
+                    bgColor: Scheme.bgColor
+                    fgColor: Scheme.fgColor
+                    font: Scheme.font
+
+                    signal tapped
+                    readonly property alias hovered: timeHover.hovered
+                    HoverHandler { id: timeHover }
+                    TapHandler { onTapped: time.tapped() }
                 }
 
                 Row {
@@ -253,33 +255,32 @@ Item {
         // }
     }
 
-    // Popout {
-    //     id: datePopout
-    //     progress: root.progress
-    //     side: "left"
-    //     anchor: time
-    //     color: Scheme.bgColor
-    //     animDuration: 400
+    Popout {
+        id: datePopout
+        progress: root.progress
+        side: "left"
+        anchor: time
+        color: Scheme.bgColor
+        animDuration: 400
+        growInPlace: true
+        clipContents: true
 
-    //     name: "date." + root.screen.name
-    //     modal: root.modal
-    //     modalAnchor: time // but in modal????
-    //     contentFactory: Component {
-    //         Text {
-    //             text: {
-    //                 return DateProc.hour + ":" + 
-    //                 DateProc.min + " " + 
-    //                 DateProc.day + " " + 
-    //                 DateProc.date + " " + 
-    //                 DateProc.month
-    //             }
-    //             color: Scheme.fgColor
-    //             font.pixelSize: 18
-    //             font.family: Scheme.font
-    //             transformOrigin: Item.Center
-    //         }
-    //     }
-    // }
+        name: "date." + root.screen.name
+        modal: root.modal
+        modalAnchor: time
+        contentFactory: Component {
+            Text {
+                text: (
+                    DateProc.day + " " +
+                    DateProc.date + " " +
+                    DateProc.month
+                )
+                color: Scheme.fgColor
+                font.pixelSize: 18
+                font.family: Scheme.font
+            }
+        }
+    }
 
     Popout {
         id: powerPopout

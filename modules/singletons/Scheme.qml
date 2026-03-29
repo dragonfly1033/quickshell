@@ -8,7 +8,6 @@ QtObject {
     readonly property int borderRadius: 24
     readonly property string font: "FiraCode Nerd Font"
     readonly property string iconFont: "Symbols Nerd font"
-    readonly property string tempSensor: "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon5/temp1_input"
     readonly property string battery: "/sys/class/power_supply/BAT1"
 
     readonly property bool colorful: false

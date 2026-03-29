@@ -11,10 +11,11 @@ Singleton {
     property string temp
     property real ratio
     property color progressColor
+    property string tempSensor: "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon5/temp1_input"
 
     Process {
         id: tempProc
-        command: ["cat", Scheme.tempSensor]
+        command: ["cat", root.tempSensor]
         running: true
 
         stdout: StdioCollector {
@@ -40,7 +41,27 @@ Singleton {
         running: true
         repeat: true
         onTriggered: {
+            //showTempSensor.running = true
             tempProc.running = true
         }
     }
+
+    Process {
+        id: getTempSensor
+        command: ["./get_temp_sensor.sh"]
+        running: true
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.tempSensor = this.text
+            }
+        }
+    }
+
+    Process {
+        id: showTempSensor
+        command: ["notify-send", root.ratio, root.temp + root.tempSensor]
+        running: false
+    }
+
 }

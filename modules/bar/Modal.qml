@@ -118,4 +118,5 @@ Scope {
     }
 
     readonly property alias spawnZones: modalSpawnZones
+    readonly property alias contentLayer: contentLayer
 }
